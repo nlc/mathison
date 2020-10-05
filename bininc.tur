@@ -1,0 +1,9 @@
+# Binary incrementor, as seen in the wooden tm video
+:A:
+  1/1/R/A
+  0/0/R/A
+  [ ]/ /L/B
+:B:
+  1/0/L/B
+  0/1/L/H
+  [ ]/1/L/H
