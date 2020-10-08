@@ -121,8 +121,8 @@ class TuringMachine
   end
 end
 
-tm = TuringMachine.new('randomprog.tur')
-tm.init_tape(" #{(1..5).map{%w[0 1].sample}.join('')} ", 1)
+tm = TuringMachine.new('copier.tur')
+tm.init_tape(" -#{(1..10).map{%w[0 1].sample}.join('')}- ", 1)
 # pp tm.states
 tempstr = tm.tape.stringify + ' '
 # tempstr.insert(tm.head_index, "\e[7m")
