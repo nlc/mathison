@@ -76,7 +76,7 @@ class TuringMachine
 
         perror('tried to set rule outside state context', i + 1) unless state_index
 
-        perror("illegal movement instruction \"#{movement}\"", i + 1) unless movement =~ /[LR]/
+        perror("illegal movement instruction \"#{movement}\"", i + 1) unless movement =~ /[LNR]/
 
         @states[state_index] = {} unless @states[state_index]
         @states[state_index][pattern] = { replacement: replacement,
@@ -109,6 +109,7 @@ class TuringMachine
           @head_index -= 1
         elsif rule[:movement] =~ /R/
           @head_index += 1
+        elsif rule[:movement] =~ /N/
         else
           raise 'TM runtime error'
         end
@@ -121,8 +122,12 @@ class TuringMachine
   end
 end
 
-tm = TuringMachine.new('copier.tur')
-tm.init_tape(" -#{(1..10).map{%w[0 1].sample}.join('')}- ", 1)
+# tm = TuringMachine.new('copier.tur')
+# tm.init_tape(" -#{(1..10).map{%w[0 1].sample}.join('')}- ", 1)
+
+tm = TuringMachine.new('beaver.tur')
+tm.init_tape('0' * 16, 7)
+
 # pp tm.states
 tempstr = tm.tape.stringify + ' '
 # tempstr.insert(tm.head_index, "\e[7m")

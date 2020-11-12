@@ -1,0 +1,10 @@
+From Wikipedia:
+
+3-state Busy Beaver
+The following Turing table of instructions was derived from Peterson (1988) page 198, Figure 7.15.
+Peterson moves the head; in the following model the tape moves.
+
+Tape symbol   Current state A                                 Current state B                         Current state C
+              Write symbol  Move tape        Next state       Write symbol     Move tape  Next state  Write symbol  Move tape  Next state
+0             1             R                B                1                L          A           1            L           B
+1             1             L                C                1                R          B           1            N           HALT

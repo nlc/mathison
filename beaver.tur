@@ -1,0 +1,10 @@
+# 3-state 2-symbol Busy Beaver, per Peterson (1988)
+:A:
+  0/1/L/B
+  1/1/R/C
+:B:
+  0/1/R/A
+  1/1/L/B
+:C:
+  0/1/R/B
+  1/1/N/H
