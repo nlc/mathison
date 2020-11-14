@@ -52,14 +52,29 @@ class TuringMachine
   attr_accessor :states
   attr_accessor :tape
   attr_accessor :head_index
+  attr_accessor :halted
 
-  def perror(msg, lineno)
-    raise "TM syntax error on line #{lineno}: #{msg}"
+  def perror(msg, lineno = nil)
+    if lineno.nil?
+      raise "TM error: #{msg}"
+    else
+      raise "TM error on line #{lineno}: #{msg}"
+    end
+  end
+
+  def pwarning(msg, lineno = nil)
+    if lineno.nil?
+      STDERR.puts "\033[1mTM warning\033[0m: #{msg}"
+    else
+      STDERR.puts "\033[1mTM warning\033[0m on line #{lineno}: #{msg}"
+    end
   end
 
   def initialize(fname)
-    @states = {}
+    @halted = false
+    @states = { }
     state_index = nil
+
     File.readlines(fname).each_with_index do |line, i|
       case line
       when /^ *#/ # comment
@@ -87,7 +102,15 @@ class TuringMachine
       end
     end
 
-    # TODO: verify that no newstate points to a non-real state
+    legal_states = @states.keys.uniq
+    possible_states = @states.map { |_key, state| state.map { |_symbol, transition| transition[:newstate] } }.flatten.uniq
+    undefined_states = possible_states - legal_states
+
+    undefined_without_halt = undefined_states - ['H']
+
+    if undefined_without_halt.any?
+      pwarning("defined transitions to undefined states (#{undefined_without_halt.map { |state_name| "\"#{state_name}\"" } .join(', ')})")
+    end
   end
 
   def init_tape(tape, head_index)
@@ -95,9 +118,18 @@ class TuringMachine
     @head_index = head_index
   end
 
+  def halt
+    @state = 'H'
+    @halted = true
+  end
+
   def iterate
     symbol = @tape.get(@head_index)
     has_matched = false
+
+    halt if @state =~ /^H$/
+    perror("entered undefined state \"#{@state}\"") if @states[@state].nil?
+
     @states[@state].each do |pattern, rule|
       if(symbol =~ pattern)
         has_matched = true
@@ -114,19 +146,23 @@ class TuringMachine
           raise 'TM runtime error'
         end
 
-        @state = rule[:newstate]
+        if rule[:movement] =~ /N/ && @state == rule[:newstate] # Treat no motion, no state change as a halt
+          halt
+        else
+          @state = rule[:newstate]
+        end
         break
       end
     end
-    raise "could not find matching rule for symbol #{symbol.dump}" unless has_matched
+    perror("could not find matching rule for symbol #{symbol.dump}") unless has_matched
   end
 end
 
-# tm = TuringMachine.new('copier.tur')
-# tm.init_tape(" -#{(1..10).map{%w[0 1].sample}.join('')}- ", 1)
+tm = TuringMachine.new('copier.tur')
+tm.init_tape(" -#{(1..10).map{%w[0 1].sample}.join('')}- ", 1)
 
-tm = TuringMachine.new('beaver.tur')
-tm.init_tape('0' * 16, 7)
+# tm = TuringMachine.new('beaver_4state.tur')
+# tm.init_tape('0' * 32, 15)
 
 # pp tm.states
 tempstr = tm.tape.stringify + ' '
