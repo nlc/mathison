@@ -180,3 +180,5 @@ until tm.state =~ /^H$/
   tempstr[tm.head_index] = "\e[7m#{tempstr[tm.head_index]}\e[0m"
   puts "\e[2K#{tempstr}"
 end
+
+# test
