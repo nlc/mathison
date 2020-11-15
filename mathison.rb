@@ -158,11 +158,11 @@ class TuringMachine
   end
 end
 
-tm = TuringMachine.new('copier.tur')
-tm.init_tape(" -#{(1..10).map{%w[0 1].sample}.join('')}- ", 1)
+# tm = TuringMachine.new('copier.tur')
+# tm.init_tape(" -#{(1..10).map{%w[0 1].sample}.join('')}- ", 1)
 
-# tm = TuringMachine.new('beaver_4state.tur')
-# tm.init_tape('0' * 32, 15)
+tm = TuringMachine.new('beaver_4state.tur')
+tm.init_tape('0' * 32, 15)
 
 # pp tm.states
 tempstr = tm.tape.stringify + ' '
