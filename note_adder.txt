@@ -1,0 +1,9 @@
+One way to do an "adding machine" is the following:
+  for two binary numbers A and B, separated by some spacer,
+  do the following until halt:
+    decrement A
+    track right to B
+    increment B
+    track left to A
+
+assuming that decrement is implemented such that it halts when given zero
