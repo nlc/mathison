@@ -1,0 +1,13 @@
+# Binary decrementor, deduced by analogy with the binary incrementor
+:A: # Walk right until blank or 1
+  0/0/R/A
+  1/1/R/B
+  [ ]/ /N/H # Bail if the number is all zeros
+:B: # Walk right until blank, having seen a 1
+  0/0/R/B
+  1/1/R/B
+  [ ]/ /L/C
+:C: # Walk left, inverting ymbols and halting after a 1 or a blank
+  0/1/L/C
+  1/0/L/H
+  [ ]/1/L/H

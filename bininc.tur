@@ -1,9 +1,9 @@
 # Binary incrementor, as seen in the wooden tm video
-:A:
+:A: # Walk right until blank cell
   1/1/R/A
   0/0/R/A
   [ ]/ /L/B
-:B:
+:B: # Walk left, inverting symbols and halting after a 0 or a blank
   1/0/L/B
   0/1/L/H
   [ ]/1/L/H

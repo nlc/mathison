@@ -1,4 +1,5 @@
 require 'pp'
+require 'byebug'
 
 class EmbeddedString
   attr_accessor :string
@@ -48,6 +49,7 @@ class EmbeddedString
 end
 
 class TuringMachine
+  attr_accessor :fname
   attr_accessor :state
   attr_accessor :states
   attr_accessor :tape
@@ -56,34 +58,35 @@ class TuringMachine
 
   def perror(msg, lineno = nil)
     if lineno.nil?
-      raise "TM error: #{msg}"
+      raise "TM error in #{@fname}: #{msg}"
     else
-      raise "TM error on line #{lineno}: #{msg}"
+      raise "TM error at #{@fname}:#{lineno}: #{msg}"
     end
   end
 
   def pwarning(msg, lineno = nil)
     if lineno.nil?
-      STDERR.puts "\033[1mTM warning\033[0m: #{msg}"
+      STDERR.puts "\033[1mTM warning\033[0m in #{@fname}: #{msg}"
     else
-      STDERR.puts "\033[1mTM warning\033[0m on line #{lineno}: #{msg}"
+      STDERR.puts "\033[1mTM warning\033[0m at #{@fname}:#{lineno}: #{msg}"
     end
   end
 
   def initialize(fname)
     @halted = false
     @states = { }
+    @fname = fname
     state_index = nil
 
-    File.readlines(fname).each_with_index do |line, i|
+    File.readlines(@fname, chomp: true).each_with_index do |line, i|
       case line
       when /^ *#/ # comment
         # ignore, next line
-      when /^:(.*):\s*$/
+      when /^:(.*):\s*(#.*)?$/
         state_index = $1
         perror('illegal use of reserved state H', i + 1) if state_index =~ /^H$/
         @state = state_index if @states.empty?
-      when / *([^\/]+)\/([^\/]+)\/([^\/]+)\/([^\/]+)/
+      when / *([^\/]+)\/([^\/]+)\/([^\/]+)\/([^\/\s]+)\s*(#.*)?$/
         pattern = /#{$1}/
         replacement = $2
         movement = $3
@@ -128,6 +131,8 @@ class TuringMachine
     has_matched = false
 
     halt if @state =~ /^H$/
+    return if halted
+
     perror("entered undefined state \"#{@state}\"") if @states[@state].nil?
 
     @states[@state].each do |pattern, rule|
@@ -161,8 +166,11 @@ end
 # tm = TuringMachine.new('copier.tur')
 # tm.init_tape(" -#{(1..10).map{%w[0 1].sample}.join('')}- ", 1)
 
-tm = TuringMachine.new('beaver_4state.tur')
-tm.init_tape('0' * 32, 15)
+# tm = TuringMachine.new('beaver_4state.tur')
+# tm.init_tape('0' * 32, 15)
+
+tm = TuringMachine.new('bindec.tur')
+tm.init_tape(" #{(1..10).map{%w[0 1].sample}.join('')} ", 1)
 
 # pp tm.states
 tempstr = tm.tape.stringify + ' '
@@ -171,7 +179,7 @@ tempstr = tm.tape.stringify + ' '
 tempstr[tm.head_index] = "\e[7m#{tempstr[tm.head_index]}\e[0m"
 puts "\e[2K#{tempstr}"
 
-until tm.state =~ /^H$/
+until tm.halted
   tm.iterate
 
   tempstr = tm.tape.stringify + ' '
